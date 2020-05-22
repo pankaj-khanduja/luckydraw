@@ -73,11 +73,11 @@ function GameTournamentService(ls, log){
 			var seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '7814567680');
 			log.info(seed);
 			var rand5 = new gen(seed);
-			 var firstNumber = (rand5(10));
+			var number = (rand5(10));
 			seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '9914677107');
 			rand5 = new gen(seed);
-			var secondNumber = (rand5(10));
-			apiService.publishToAll('On_Draw_Number',{firstNumber,secondNumber});
+			number = number.toString() + (rand5(10));
+			apiService.publishToAll('On_Draw_Number',{number});
 			if(job){
 				await job.remove();
 			}
