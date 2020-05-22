@@ -1,0 +1,6 @@
+[24-Mar-2020 12:47:49 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function mcrypt_get_block_size() in /home/zfgaw85fedle/public_html/paytm_grati/lib/encdec_paytm.php:5
+Stack trace:
+#0 /home/zfgaw85fedle/public_html/paytm_grati/lib/encdec_paytm.php(86): encrypt_e('84ac36ab14daa69...', 'HNFLjYewgtJLa5V...')
+#1 /home/zfgaw85fedle/public_html/paytm_grati/paytm_response.php(33): getChecksumFromString('{"request":{"re...', 'HNFLjYewgtJLa5V...')
+#2 {main}
+  thrown in /home/zfgaw85fedle/public_html/paytm_grati/lib/encdec_paytm.php on line 5

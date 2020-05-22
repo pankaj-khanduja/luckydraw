@@ -1,0 +1,12 @@
+{
+    "paytm" : {
+        "MID" : "ItoXRU39657623769718",
+        "Merchant_KEY" : "5tueA1j0_EwkaQYL",
+        "Website" : "DEFAULT",
+        "Channel_Id" : "WEB",
+        "Industry_Type_Id" : "Retail",
+        "hostname": "securegw.paytm.in"
+    },
+    "APIURL" : "https://www.tambola.ssoftwaretechs.com",
+    "port" : 8765
+}
