@@ -8,6 +8,7 @@ function GameTournamentService(ls, log){
    ,   mongo = require('mongodb')
    ,   moment = require('moment')
    ,   async = require('async')
+   ,	gen = require('random-seed')
    ,   _ = require('lodash')
    ,   tournament_ball_map = {}
    ,   transactionService = null
@@ -53,8 +54,44 @@ function GameTournamentService(ls, log){
     }
 
     function createGame(){
-        log.warn('called new game');
-        apiService.publishToAll('ON_NEW_GAME',{});
+		log.warn('called new game');
+		apiService.publishToAll('ON_NEW_GAME',{});
+		var date  = moment(new Date());
+		date.add('30','seconds');
+		log.info('new date');
+		defineJob('On_Entry_Closed', {}, async function(job){
+			apiService.publishToAll('ON_Entry_Closed',{});
+			date.add('30','seconds');
+			log.info('next new date');
+			startScheduler(date, 'On_Draw_Number',{});
+			if(job){
+				await job.remove();
+			}
+		});
+
+		defineJob('On_Draw_Number', {}, async function(job){
+			var seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '7814567680');
+			log.info(seed);
+			var rand5 = new gen(seed);
+			 var firstNumber = (rand5(10));
+			seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '9914677107');
+			rand5 = new gen(seed);
+			var secondNumber = (rand5(10));
+			apiService.publishToAll('On_Draw_Number',{firstNumber,secondNumber});
+			if(job){
+				await job.remove();
+			}
+		});
+		startScheduler(date, 'On_Entry_Closed',{});
+	}
+	
+	function defineJob(event, opts, handler){
+        agenda.define(event, opts, handler);
+        agenda.on('fail:'+event, async (err, job) => {
+           log.error(`Job failed with error: ${err.message}`);
+           job.fail(new Error(err.message));
+           await job.save();
+        });
     }
 
     this.configure = configure;

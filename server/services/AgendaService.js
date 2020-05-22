@@ -1,5 +1,7 @@
 exports.AgendaService = AgendaService;
-
+var startingTimeInMinutes = 540;
+var endingTimeInMinutes =  1080;
+var intervalBetweenGamesInMinutes = 15; 
 function AgendaService(ls, log){
 
     var self = this
@@ -30,6 +32,9 @@ function AgendaService(ls, log){
         }
 
         function next(db){
+			
+			
+
             agenda = new Agenda({processEvery: '8 seconds', mongo : db, collection: 'jobs'});
             agenda.on('ready',async job => {
                 log.info('agenda db connection created');
@@ -42,24 +47,37 @@ function AgendaService(ls, log){
         }
 
         async function agendaInitialSetup(){
-            var date  = moment(new Date());
-            var minutes  = date.format('mm');
-            var after = getNextInterval(minutes);
-            log.info('minutes, after',minutes, after);
-            date.add(after.toString(),'minutes');
-            date.set({second:0,millisecond:0});
-            var endTime  = moment(new Date());
-            endTime.set({hour:18, minute:0,second:0,millisecond:0});
-            log.info('endTime',endTime.toString());
-            log.info('date',date.toString());
-            if(date.isAfter(endTime)){
+			var date  = moment(new Date());
+			var seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '7814567680');
+			log.info(seed);
+			date.set({second:0,millisecond:0});
+			var minutes  = (date.hours() * 60 + date.minutes());
+			if(minutes > (endingTimeInMinutes)){
                 log.warn('game time is over');
                 date.add('1','day');
                 date.set({hour:9, minute:0,second:0,millisecond:0});
                 log.info('new date',date.toString());
-            }
+            }else if(minutes <= startingTimeInMinutes){
+				var delay =  startingTimeInMinutes - minutes;
+				log.warn('before starting ',delay);
+				date.add(delay,'minutes');
+			}else{
+				var minuteElapsed = minutes % 15;
+				delay = intervalBetweenGamesInMinutes - minuteElapsed;
+				log.warn('Inbetween ',delay);
+				date.add(delay,'minutes');
+			} 
+
             defineJob('ON_INITIAL_START', {}, async function(job){
-                date.add('15','minutes');
+				
+				date.add('15','minutes');
+				var newMinutes  = (date.hours() * 60 + date.minutes());
+				if(newMinutes > (endingTimeInMinutes)){
+					log.warn('game time is over');
+					date.add('1','day');
+					date.set({hour:9, minute:0,second:0,millisecond:0});
+					log.info('new date',date.toString());
+				}
                 log.warn('on starter called');
                 startScheduler(date, 'ON_INITIAL_START',{});
                 onEveryNewGame();
@@ -86,24 +104,6 @@ function AgendaService(ls, log){
         }
 
         getMongo();
-    }
-
-    function getNextInterval(minute){
-        if(minute == 15 || minute == 30 || minute == 45 || minute == 60){
-            return 15;
-        }
-        if(minute == 1 && minute < 15){
-            return 15-minute;
-        }
-        if(minute > 15 && minute < 30){
-            return 30-minute;
-        }
-        if(minute > 30 && minute < 45){
-            return 45-minute;
-        }
-        if(minute > 45 && minute < 60){
-            return 60-minute;
-        }
     }
 
     function defineJob(event, opts, handler){
