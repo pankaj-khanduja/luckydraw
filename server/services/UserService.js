@@ -33,15 +33,16 @@ function UserService(ls, log){
                         return;
                     }
                     jwtService = s;
-                    ls.getService('FirebaseCloudDatabase', function(fservice){
-                        if(!fservice){
-                            log.error('error while getting FirebaseCloudDatabase');
-                            cb({error:'error while getting FirebaseCloudDatabase'}, null);
-                            return;
-                        }
-                        firebaseService = fservice;
-                        cb(null, true);
-                    });
+                    cb(null, true);
+                    // ls.getService('FirebaseCloudDatabase', function(fservice){
+                    //     if(!fservice){
+                    //         log.error('error while getting FirebaseCloudDatabase');
+                    //         cb({error:'error while getting FirebaseCloudDatabase'}, null);
+                    //         return;
+                    //     }
+                    //     firebaseService = fservice;
+                    //     cb(null, true);
+                    // });
                 });
             });
         }); 

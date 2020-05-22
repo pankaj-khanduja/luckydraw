@@ -44,10 +44,6 @@ var config = {
             'database':'luckyDrawDB'
           }
       },
-      "FirebaseCloudDatabase" : {
-        "name" : "FirebaseCloudDatabase",
-        "path" : __dirname+'/tambola-2d7b0-firebase-adminsdk-p7mwf-6cdb587c42.json'
-      },
       "AgendaService" : {
         "name" : "AgendaService",
         'database':'luckyDrawDB'
