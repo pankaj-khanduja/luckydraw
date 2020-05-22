@@ -76,15 +76,36 @@ function GameTournamentService(ls, log){
 			var number = (rand5(10));
 			seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '9914677107');
 			rand5 = new gen(seed);
-			number = number.toString() + (rand5(10));
+            number = number.toString() + (rand5(10));
+            saveNumber(number);
 			apiService.publishToAll('On_Draw_Number',{number});
 			if(job){
 				await job.remove();
 			}
 		});
 		agenda.startScheduler(date, 'On_Entry_Closed',{});
-	}
+    }
+    
+    function saveNumber(number){
+        mongoDBService.save('luckyDrawDB', "numbers", {number : number, createdAt : new Date()}, function(e, r){
+            console.log('number saved');
+        });
+    }
+
+    function getNumberByDate(data, cb){
+        var query = {};
+        query = {createdAt : {$gte : new Date(moment(new Date(data.from))), $lte:new Date(moment(new Date(data.to)))}};
+        log.info(query);
+        mongoDBService.find('luckyDrawDB', 'numbers', query, {sort:{createdAt:-1}}, function(error, result){
+            if(error){
+                cb(error, null);
+                return;
+            }
+            cb(null, result);
+        });
+    }
 
     this.configure = configure;
     this.createGame = createGame;
+    this.getNumberByDate = getNumberByDate;
 }
