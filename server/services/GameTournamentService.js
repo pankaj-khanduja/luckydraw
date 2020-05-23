@@ -96,7 +96,7 @@ function GameTournamentService(ls, log){
         var query = {};
         query = {createdAt : {$gte : new Date(moment(new Date(data.from))), $lte:new Date(moment(new Date(data.to)))}};
         log.info(query);
-        mongoDBService.find('luckyDrawDB', 'numbers', query, {sort:{createdAt:-1}}, function(error, result){
+        mongoDBService.find('luckyDrawDB', 'numbers', query, {}, function(error, result){
             if(error){
                 cb(error, null);
                 return;
