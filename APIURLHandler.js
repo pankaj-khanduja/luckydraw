@@ -30,6 +30,24 @@ module.exports = function (ls, express, config, log){
       });
     });
 
+    express.post('/updateNumber', function(req, res){
+        ls.getService('GameTournamentService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.updateNumber(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
+    });
+
     express.get('/getServerTime', function(req, res){
         var date  = moment(new Date());
         var month = date.format('M');

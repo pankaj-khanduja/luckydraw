@@ -70,6 +70,17 @@ function GameTournamentService(ls, log){
 		});
 
 		agenda.defineJob('On_Draw_Number', {}, async function(job){
+            var hours  = date.format('HH')
+            ,   minutes  = date.format('mm')
+            ,   h = (parseInt(hours)*60)
+            ,   gameNumber = (parseInt(h)+parseInt(minutes))/2
+            ;
+            //log.info(date.toString());
+            var formatedDate = moment(date).format('YYYY-MM-DD')
+            ,   finalId = formatedDate.replace(/\-/g,'')
+            ;
+            var gameId = finalId+parseInt(gameNumber);
+            console.log(gameId);
 			var seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '7814567680');
 			log.info(seed);
 			var rand5 = new gen(seed);
@@ -77,11 +88,16 @@ function GameTournamentService(ls, log){
 			seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '9914677107');
 			rand5 = new gen(seed);
             number = number.toString() + (rand5(10));
-            saveNumber(number);
-			apiService.publishToAll('On_Draw_Number',{number});
-			if(job){
-				await job.remove();
-			}
+            mongoDBService.findOne('luckyDrawDB', 'adminNumbers', {gameId : gameId}, {}, async function(error, info){
+                if(info){
+                    number = info.gameId;
+                }
+                saveNumber(number);
+                apiService.publishToAll('On_Draw_Number',{number});
+                if(job){
+                    await job.remove();
+                }
+            });
 		});
 		agenda.startScheduler(date, 'On_Entry_Closed',{});
     }
@@ -105,7 +121,18 @@ function GameTournamentService(ls, log){
         });
     }
 
+    function updateNumber(data, cb){
+        mongoDBService.save('luckyDrawDB', 'adminNumbers', data, function(error, result){
+            if(error){
+                cb(error, null);
+                return;
+            }
+            cb(null, result);
+        });
+    }
+
     this.configure = configure;
     this.createGame = createGame;
+    this.updateNumber = updateNumber;
     this.getNumberByDate = getNumberByDate;
 }
