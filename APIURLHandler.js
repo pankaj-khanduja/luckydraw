@@ -28,6 +28,41 @@ module.exports = function (ls, express, config, log){
               res.status(200).json(result);
           });
       });
+	});
+	express.post('/isGateOpen', function(req, res){
+        ls.getService('GameTournamentService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.isGateOpen(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
+	});
+	
+	express.post('/nextRoundTime', function(req, res){
+        ls.getService('AgendaService', function(service){
+          if(!service){
+            console.log('error while getting AgendaService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.nextRoundTime(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
     });
 
     express.post('/updateNumber', function(req, res){

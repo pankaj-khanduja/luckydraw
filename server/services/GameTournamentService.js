@@ -1,5 +1,5 @@
 exports.GameTournamentService = GameTournamentService;
-
+var isGateOpenValue= false;
 function GameTournamentService(ls, log){
    
    var self = this
@@ -57,16 +57,27 @@ function GameTournamentService(ls, log){
 		log.warn('called new game');
 		apiService.publishToAll('ON_NEW_GAME',{});
 		var date  = moment(new Date());
-		date.add('30','seconds');
+		date.add('80','seconds');
+		isGateOpenValue = true;
 		log.info('new date');
 		agenda.defineJob('On_Entry_Closed', {}, async function(job){
 			apiService.publishToAll('ON_Entry_Closed',{});
-			date.add('30','seconds');
+			isGateOpenValue = false;
+			date.add('10','seconds');
 			log.info('next new date');
-			agenda.startScheduler(date, 'On_Draw_Number',{});
+			agenda.startScheduler(date, 'On_Game_Start',{});
+			agenda.defineJob('On_Game_Start', {}, async function(job){
+				apiService.publishToAll('On_Game_Start',{});
+				date.add('20','seconds');
+				agenda.startScheduler(date, 'On_Draw_Number',{});
+                if(job){
+                    await job.remove();
+                }
+            });
 			if(job){
 				await job.remove();
 			}
+			
 		});
 
 		agenda.defineJob('On_Draw_Number', {}, async function(job){
@@ -93,7 +104,15 @@ function GameTournamentService(ls, log){
                     number = info.gameId;
                 }
                 saveNumber(number);
-                apiService.publishToAll('On_Draw_Number',{number});
+				apiService.publishToAll('On_Draw_Number',{number});
+				date.add('5','minutes');
+				agenda.startScheduler(date, 'On_Game_Exit',{});
+				if(job){
+					await job.remove();
+				}
+			});
+			agenda.defineJob('On_Game_Exit', {}, async function(job){
+				apiService.publishToAll('On_Game_Exit',{});
                 if(job){
                     await job.remove();
                 }
@@ -119,6 +138,11 @@ function GameTournamentService(ls, log){
             }
             cb(null, result);
         });
+	}
+	
+	function isGateOpen(data, cb){
+		log.info(isGateOpenValue);
+		cb(null,isGateOpenValue);
     }
 
     function updateNumber(data, cb){
@@ -132,7 +156,8 @@ function GameTournamentService(ls, log){
     }
 
     this.configure = configure;
-    this.createGame = createGame;
+	this.createGame = createGame;
+	this.isGateOpen = isGateOpen;
     this.updateNumber = updateNumber;
     this.getNumberByDate = getNumberByDate;
 }

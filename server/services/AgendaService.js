@@ -1,7 +1,8 @@
 exports.AgendaService = AgendaService;
-var startingTimeInMinutes = 540;
-var endingTimeInMinutes =  1080;
+var startingTimeInMinutes = 539;
+var endingTimeInMinutes =  1079;
 var intervalBetweenGamesInMinutes = 15; 
+var nextRoundStartingTimeInMinutes;
 function AgendaService(ls, log){
 
     var self = this
@@ -54,20 +55,27 @@ function AgendaService(ls, log){
 			var minutes  = (date.hours() * 60 + date.minutes());
 			if(minutes > (endingTimeInMinutes)){
                 log.warn('game time is over');
-                date.add('1','day');
-                date.set({hour:9, minute:0,second:0,millisecond:0});
-                log.info('new date',date.toString());
+				date.add('1','day');
+                date.set({hour:8, minute:59,second:0,millisecond:0});
+				log.info('new date',date.toString());
+				nextRoundStartingTimeInMinutes = startingTimeInMinutes;
             }else if(minutes <= startingTimeInMinutes){
-				var delay =  startingTimeInMinutes - minutes;
-				log.warn('before starting ',delay);
-				date.add(delay,'minutes');
+				var customHour = startingTimeInMinutes/60;
+				var customMin = startingTimeInMinutes%60;
+				
+				log.info("hh  ",customHour ,"  sec   "+customMin);
+				date.set({hour:customHour, minute:customMin,second:0,millisecond:0});
+				nextRoundStartingTimeInMinutes = startingTimeInMinutes;
+				log.warn('before starting ');
 			}else{
 				var minuteElapsed = minutes % 15;
 				delay = intervalBetweenGamesInMinutes - minuteElapsed;
 				log.warn('Inbetween ',delay);
 				date.add(delay,'minutes');
+				nextRoundStartingTimeInMinutes = (date.hours() * 60 + date.minutes());
 			} 
-
+			
+			log.info("next  "+nextRoundStartingTimeInMinutes);
             defineJob('ON_INITIAL_START', {}, async function(job){
 				
 				date.add('15','minutes');
@@ -75,10 +83,11 @@ function AgendaService(ls, log){
 				if(newMinutes > (endingTimeInMinutes)){
 					log.warn('game time is over');
 					date.add('1','day');
-					date.set({hour:9, minute:0,second:0,millisecond:0});
+					date.set({hour:8, minute:59,second:0,millisecond:0});
 					log.info('new date',date.toString());
 				}
-                log.warn('on starter called');
+				log.warn('on starter called');
+				nextRoundStartingTimeInMinutes = (date.hours() * 60 + date.minutes());
                 startScheduler(date, 'ON_INITIAL_START',{});
                 onEveryNewGame();
                 if(job){
@@ -104,7 +113,12 @@ function AgendaService(ls, log){
         }
 
         getMongo();
-    }
+	}
+	
+	function nextRoundTime(data, cb){
+		log.info("nextRound  "+nextRoundStartingTimeInMinutes);
+		cb(null, nextRoundStartingTimeInMinutes);
+	}
 
     function defineJob(event, opts, handler){
         agenda.define(event, opts, handler);
@@ -152,5 +166,6 @@ function AgendaService(ls, log){
     this.defineJob = defineJob;
     this.startScheduler = startScheduler;
     this.startEveryScheduler = startEveryScheduler;
-    this.cancelAgenda = cancelAgenda;
+	this.cancelAgenda = cancelAgenda;
+	this.nextRoundTime = nextRoundTime;
 }
