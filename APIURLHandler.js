@@ -81,6 +81,24 @@ module.exports = function (ls, express, config, log){
               res.status(200).json(result);
           });
       });
+	});
+	
+	express.post('/getAdminNumber', function(req, res){
+        ls.getService('GameTournamentService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.getAdminNumber(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
     });
 
     express.get('/getServerTime', function(req, res){

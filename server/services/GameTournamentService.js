@@ -84,14 +84,14 @@ function GameTournamentService(ls, log){
             var hours  = date.format('HH')
             ,   minutes  = date.format('mm')
             ,   h = (parseInt(hours)*60)
-            ,   gameNumber = (parseInt(h)+parseInt(minutes))/2
+            ,   gameNumber = (parseInt(h)+parseInt(minutes))
             ;
-            //log.info(date.toString());
+            log.info(gameNumber);
             var formatedDate = moment(date).format('YYYY-MM-DD')
             ,   finalId = formatedDate.replace(/\-/g,'')
             ;
             var gameId = finalId+parseInt(gameNumber);
-            console.log(gameId);
+            log.info(gameId);
 			var seed = (date.year().toString()+ date.dayOfYear().toString() + date.day().toString() + date.hour().toString()+ date.minute().toString()  + '7814567680');
 			log.info(seed);
 			var rand5 = new gen(seed);
@@ -101,7 +101,7 @@ function GameTournamentService(ls, log){
             number = number.toString() + (rand5(10));
             mongoDBService.findOne('luckyDrawDB', 'adminNumbers', {gameId : gameId}, {}, async function(error, info){
                 if(info){
-                    number = info.gameId;
+                    number = info.number;
                 }
                 saveNumber(number);
 				apiService.publishToAll('On_Draw_Number',{number});
@@ -153,11 +153,25 @@ function GameTournamentService(ls, log){
             }
             cb(null, result);
         });
-    }
+	}
+	
+	function getAdminNumber(data, cb){
+        var query = {};
+        query = {createdAt : {$gte : new Date(moment(new Date(data.from))), $lte:new Date(moment(new Date(data.to)))}};
+        log.info(query);
+        mongoDBService.find('luckyDrawDB', 'adminNumbers', query, {}, function(error, result){
+            if(error){
+                cb(error, null);
+                return;
+            }
+            cb(null, result);
+        });
+	}
 
     this.configure = configure;
 	this.createGame = createGame;
 	this.isGateOpen = isGateOpen;
-    this.updateNumber = updateNumber;
+	this.updateNumber = updateNumber;
+	this.getAdminNumber = getAdminNumber;
     this.getNumberByDate = getNumberByDate;
 }
