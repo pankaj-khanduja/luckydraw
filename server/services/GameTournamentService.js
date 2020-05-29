@@ -146,7 +146,16 @@ function GameTournamentService(ls, log){
     }
 
     function updateNumber(data, cb){
-        mongoDBService.save('luckyDrawDB', 'adminNumbers', data, function(error, result){
+        if(data && !Array.isArray(data)){
+            data = [data];
+        }
+        var count = 0;
+        while(count < data.length){
+            var info = data[count];
+            info.createdAt = new Date();
+            count++;
+        }
+        mongoDBService.insertMany('luckyDrawDB', 'adminNumbers', data, {}, function(error, result){
             if(error){
                 cb(error, null);
                 return;
