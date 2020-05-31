@@ -149,13 +149,17 @@ function GameTournamentService(ls, log){
         if(data && !Array.isArray(data)){
             data = [data];
         }
-        var count = 0;
-        while(count < data.length){
-            var info = data[count];
+        async.mapSeries(data, function(info, done){
+            var query = {gameId : info.gameId};
             info.createdAt = new Date();
-            count++;
-        }
-        mongoDBService.insertMany('luckyDrawDB', 'adminNumbers', data, {}, function(error, result){
+            mongoDBService.update('luckyDrawDB', 'adminNumbers', query, {$set:info}, {upsert:true}, function(error, result){
+                if(error){
+                    done(error, null);
+                    return;
+                }
+                done(null, result);
+            });
+        }, function(error, result){
             if(error){
                 cb(error, null);
                 return;
