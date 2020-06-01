@@ -82,6 +82,24 @@ module.exports = function (ls, express, config, log){
           });
       });
 	});
+
+	express.post('/updateAdminNumber', function(req, res){
+        ls.getService('GameTournamentService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.updateAdminNumber(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
+	});
 	
 	express.post('/getAdminNumber', function(req, res){
         ls.getService('GameTournamentService', function(service){
@@ -91,6 +109,24 @@ module.exports = function (ls, express, config, log){
             return;
           } 
           service.getAdminNumber(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
+	});
+	
+	express.post('/getNumber', function(req, res){
+        ls.getService('GameTournamentService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.getNumber(req.body, function(error, result){
               if(error){
                 console.log(error); 
                 res.status(404).json(error);
