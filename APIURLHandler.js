@@ -145,7 +145,7 @@ module.exports = function (ls, express, config, log){
         var hours  = date.format('HH');
         var minutes  = date.format('mm');
         var seconds  = date.format('ss');
-        res.status(200).json({month : month, day : day, year : year, hours : hours, minutes : minutes, seconds : seconds}); 
+        res.status(200).json({month : month, day : day, years : year, hours : hours, minutes : minutes, seconds : seconds}); 
     });
 
     function isAuthenticated(req, res, next){
