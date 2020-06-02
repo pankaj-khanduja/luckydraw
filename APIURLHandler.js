@@ -29,6 +29,40 @@ module.exports = function (ls, express, config, log){
           });
       });
 	});
+	express.post('/updateVersion', function(req, res){
+        ls.getService('UserService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.updateVersion(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
+	});
+	express.post('/getVersion', function(req, res){
+        ls.getService('UserService', function(service){
+          if(!service){
+            console.log('error while getting GameTournamentService');
+            res.status(404).json({'message':'something went wrong'});
+            return;
+          } 
+          service.getVersion(req.body, function(error, result){
+              if(error){
+                console.log(error); 
+                res.status(404).json(error);
+                return;
+              } 
+              res.status(200).json(result);
+          });
+      });
+	});
 	express.post('/isGateOpen', function(req, res){
         ls.getService('GameTournamentService', function(service){
           if(!service){
