@@ -80,13 +80,13 @@ function GameTournamentService(ls, log) {
         minutes = date.format("mm"),
         h = parseInt(hours) * 60,
         gameNumber = parseInt(h) + parseInt(minutes);
-      log.info(gameNumber);
+     
       var formatedDate = moment(date).format("YYYY-MM-DD"),
         finalId = formatedDate.replace(/\-/g, "");
       var gameId = finalId + parseInt(gameNumber);
-      log.info(gameId);
+      
       var seed =date.year().toString() +date.dayOfYear().toString() +date.day().toString() +date.hour().toString() +date.minute().toString() +"7814567680";
-      log.info(seed);
+     
       var rand5 = new gen(seed);
       var number = rand5(10);
       seed =date.year().toString() +date.dayOfYear().toString() +date.day().toString() +date.hour().toString() +date.minute().toString() +"9914677107";

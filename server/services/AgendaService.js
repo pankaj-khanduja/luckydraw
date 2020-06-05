@@ -1,6 +1,6 @@
 exports.AgendaService = AgendaService;
 var startingTimeInMinutes = 539;
-var endingTimeInMinutes =  1079;
+var endingTimeInMinutes =  1064;
 var intervalBetweenGamesInMinutes = 15; 
 var nextRoundStartingTimeInMinutes;
 function AgendaService(ls, log){
