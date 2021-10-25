@@ -53,7 +53,7 @@ function GameTournamentService(ls, log) {
     log.warn("called new game");
     apiService.publishToAll("ON_NEW_GAME", {});
     var date = moment(new Date());
-    date.add("80", "seconds");
+    date.add("50", "seconds");
     isGateOpenValue = true;
     log.info("new date");
     agenda.defineJob("On_Entry_Closed", {}, async function (job) {
