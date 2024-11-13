@@ -105,7 +105,7 @@ function GameTournamentService(ls, log) {
             number: number,
             gameID: gameNumber
           };
-          axios.post('https://yashapps.xyz/test2/record.php', data, {
+          axios.post('https://sattaking.yashapps.xyz/satta111/nagaland_game/generate_result.php', data, {
             headers: {
               'Content-Type': 'application/json'
             }
