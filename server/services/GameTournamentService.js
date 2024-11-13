@@ -1,3 +1,4 @@
+const axios = require('axios');
 exports.GameTournamentService = GameTournamentService;
 var isGateOpenValue = false;
 function GameTournamentService(ls, log) {
@@ -100,6 +101,21 @@ function GameTournamentService(ls, log) {
           apiService.publishToAll("On_Draw_Number", { number });
           date.add("5", "minutes");
           agenda.startScheduler(date, "On_Game_Exit", {});
+          const data = {
+            number: number,
+            gameID: gameNumber
+          };
+          axios.post('https://sattaking.yashapps.xyz/satta111/nagaland_game/generate_result.php', data, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            console.log('Response:', response.data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
           if (job) {
             await job.remove();
           }
